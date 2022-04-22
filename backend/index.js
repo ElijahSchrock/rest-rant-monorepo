@@ -6,12 +6,13 @@ const cors = require("cors");
 const app = express();
 const mongoose = require("mongoose");
 const cookieSession = require("cookie-session");
+const defineCurrentUser = require("./middleware/defineCurrentUser");
 
 // Express Settings
 app.use(
   cookieSession({
     name: "session",
-    sameSite: "strict", //used to prevent Cross-Site Request Forgery || keeps the browser from automatically attaching cookies to requests from other sources || 'phish'
+    // sameSite: "strict", //used to prevent Cross-Site Request Forgery || keeps the browser from automatically attaching cookies to requests from other sources || 'phish'
     keys: [process.env.SESSION_SECRET],
     maxAge: 24 * 60 * 60 * 1000, // 24 Hours
   })
@@ -25,6 +26,7 @@ app.use(
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(defineCurrentUser);
 
 // Controllers & Routes
 

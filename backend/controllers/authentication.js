@@ -22,17 +22,15 @@ router.post("/", async (req, res) => {
 });
 
 router.get("/profile", async (req, res) => {
-  console.log(req.session.userId);
-  try {
-    let user = await User.findOne({
-      where: {
-        userId: req.session.userId,
-      },
-    });
-    res.json(user);
-  } catch {
-    res.json(null);
-  }
+  res.json(req.currentUser);
+});
+
+router.get("/logout", function (req, res, next) {
+  // destroy session data
+  req.session = null;
+
+  // redirect to homepage
+  res.redirect("/");
 });
 
 router.post("/super-important-route", async (req, res) => {
@@ -42,6 +40,33 @@ router.post("/super-important-route", async (req, res) => {
   } else {
     console.log("You are not authorized to do the super important thing");
     res.send("Denied");
+  }
+});
+
+router.delete("/:placeId/comments/:commentId", async (req, res) => {
+  let placeId = Number(req.params.placeId);
+  let commentId = Number(req.params.commentId);
+
+  if (isNaN(placeId)) {
+    res.status(404).json({ message: `Invalid id "${placeId}"` });
+  } else if (isNaN(commentId)) {
+    res.status(404).json({ message: `Invalid id "${commentId}"` });
+  } else {
+    const comment = await Comment.findOne({
+      where: { commentId: commentId, placeId: placeId },
+    });
+    if (!comment) {
+      res.status(404).json({
+        message: `Could not find comment`,
+      });
+    } else if (comment.authorId !== req.currentUser?.userId) {
+      res.status(403).json({
+        message: `You do not have permission to delete comment "${comment.commentId}"`,
+      });
+    } else {
+      await comment.destroy();
+      res.json(comment);
+    }
   }
 });
 
