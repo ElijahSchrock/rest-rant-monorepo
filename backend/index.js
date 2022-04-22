@@ -5,9 +5,23 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
 const mongoose = require("mongoose");
+const cookieSession = require("cookie-session");
 
 // Express Settings
-app.use(cors());
+app.use(
+  cookieSession({
+    name: "session",
+    sameSite: "strict", //used to prevent Cross-Site Request Forgery || keeps the browser from automatically attaching cookies to requests from other sources || 'phish'
+    keys: [process.env.SESSION_SECRET],
+    maxAge: 24 * 60 * 60 * 1000, // 24 Hours
+  })
+);
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
