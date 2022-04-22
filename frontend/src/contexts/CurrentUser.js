@@ -18,10 +18,23 @@ function CurrentUserProvider({ children }) {
     getLoggedInUser();
   }, []);
 
+  let logoutButton = null;
+
+  if (currentUser?.userId) {
+    logoutButton = (
+      <li style={{ float: "right" }}>
+        <a href="http://localhost:5000/authentication/logout" onClick={null}>
+          Logout
+        </a>
+      </li>
+    );
+  }
+
   window.setCurrentUser = setCurrentUser;
   return (
     <CurrentUser.Provider value={{ currentUser, setCurrentUser }}>
       {children}
+      {logoutButton}
     </CurrentUser.Provider>
   );
 }
